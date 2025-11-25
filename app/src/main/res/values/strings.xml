@@ -1,3 +1,43 @@
 <resources>
-    <string name="app_name">SMSApplication</string>
+    <string name="app_name">SMS Application</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- Labels -->
+    <string name="phone_number_label">Phone Number</string>
+    <string name="message_label">Message</string>
+
+    <!-- Hints -->
+    <string name="phone_hint">07XXXXXXXX or +2547XXXXXXXX</string>
+    <string name="message_hint">Type your message here...</string>
+
+    <!-- Buttons -->
+    <string name="btn_send_sms">Send SMS</string>
+    <string name="btn_compose_sms">Compose in SMS App</string>
+
+    <!-- Info Messages -->
+    <string name="phone_format_info">Accepted formats: 07..., +2547..., or 2547...</string>
+    <string name="message_length_info">SMS limit: 159 characters. Longer messages will be sent as multiple SMS.</string>
+    <string name="app_info">• Send SMS: Sends directly from app (requires permission)\n• Compose in SMS App: Opens default SMS app</string>
+
+    <!-- Error Messages -->
+    <string name="error_phone_required">Phone number is required</string>
+    <string name="error_phone_invalid">Invalid Kenyan phone number format. Use 07..., +2547..., or 2547...</string>
+    <string name="error_message_empty">Message cannot be empty</string>
+
+    <!-- Success Messages -->
+    <string name="sms_sent">SMS sent successfully</string>
+    <string name="sms_sent_multipart">SMS sent successfully (Multiple parts)</string>
+
+    <!-- Warning Messages -->
+    <string name="warning_long_message">Warning: Your message exceeds 159 characters and will be sent as multiple SMS</string>
+
+    <!-- Permission Messages -->
+    <string name="permission_granted">SMS permission granted</string>
+    <string name="permission_denied">SMS permission denied. Cannot send SMS.</string>
+    <string name="permission_needed">Permission denied. Please enable SMS permission in settings.</string>
+
+    <!-- Failure Messages -->
+    <string name="sms_failed">SMS failed: %1$s. Please try again.</string>
+    <string name="no_sms_app">No SMS app found. Please install an SMS application.</string>
+    <string name="compose_failed">Failed to open SMS app: %1$s</string>
 </resources>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Default screen margins -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+
+    <!-- Padding -->
+    <dimen name="padding_small">8dp</dimen>
+    <dimen name="padding_medium">16dp</dimen>
+    <dimen name="padding_large">24dp</dimen>
+    <dimen name="padding_xlarge">32dp</dimen>
+
+    <!-- Margins -->
+    <dimen name="margin_small">8dp</dimen>
+    <dimen name="margin_medium">16dp</dimen>
+    <dimen name="margin_large">24dp</dimen>
+    <dimen name="margin_xlarge">32dp</dimen>
+
+    <!-- Text sizes -->
+    <dimen name="text_size_tiny">10sp</dimen>
+    <dimen name="text_size_small">12sp</dimen>
+    <dimen name="text_size_normal">14sp</dimen>
+    <dimen name="text_size_medium">16sp</dimen>
+    <dimen name="text_size_large">18sp</dimen>
+    <dimen name="text_size_xlarge">20sp</dimen>
+    <dimen name="text_size_title">24sp</dimen>
+    <dimen name="text_size_header">28sp</dimen>
+
+    <!-- Button dimensions -->
+    <dimen name="button_height">48dp</dimen>
+    <dimen name="button_height_large">56dp</dimen>
+    <dimen name="button_padding_horizontal">24dp</dimen>
+    <dimen name="button_padding_vertical">12dp</dimen>
+
+    <!-- EditText dimensions -->
+    <dimen name="edit_text_padding">12dp</dimen>
+    <dimen name="edit_text_min_height">48dp</dimen>
+    <dimen name="edit_text_multiline_height">120dp</dimen>
+
+    <!-- Card view -->
+    <dimen name="card_corner_radius">8dp</dimen>
+    <dimen name="card_elevation">4dp</dimen>
+    <dimen name="card_margin">8dp</dimen>
+
+    <!-- Icon sizes -->
+    <dimen name="icon_size_small">16dp</dimen>
+    <dimen name="icon_size_medium">24dp</dimen>
+    <dimen name="icon_size_large">32dp</dimen>
+    <dimen name="icon_size_xlarge">48dp</dimen>
+
+    <!-- Spacing -->
+    <dimen name="spacing_tiny">4dp</dimen>
+    <dimen name="spacing_small">8dp</dimen>
+    <dimen name="spacing_medium">16dp</dimen>
+    <dimen name="spacing_large">24dp</dimen>
+    <dimen name="spacing_xlarge">32dp</dimen>
+
+    <!-- Divider -->
+    <dimen name="divider_height">1dp</dimen>
+
+    <!-- App specific dimensions -->
+    <dimen name="character_counter_text_size">14sp</dimen>
+    <dimen name="phone_hint_text_size">12sp</dimen>
+    <dimen name="message_input_height">150dp</dimen>
+    <dimen name="app_title_size">28sp</dimen>
+    <dimen name="label_text_size">16sp</dimen>
+    <dimen name="info_text_size">12sp</dimen>
+
+    <!-- Touch target sizes (minimum 48dp for accessibility) -->
+    <dimen name="touch_target_min">48dp</dimen>
+
+    <!-- List item dimensions -->
+    <dimen name="list_item_height">56dp</dimen>
+    <dimen name="list_item_padding_horizontal">16dp</dimen>
+
+    <!-- FAB (Floating Action Button) -->
+    <dimen name="fab_size">56dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+
+    <!-- Navigation -->
+    <dimen name="nav_header_height">176dp</dimen>
+    <dimen name="nav_header_vertical_spacing">8dp</dimen>
+</resources>

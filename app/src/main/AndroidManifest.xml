@@ -2,10 +2,34 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Hardware features -->
     <uses-feature
         android:name="android.hardware.telephony"
         android:required="false" />
+
+    <!-- Permissions -->
     <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
+    <!-- Queries block for Android 11+ (API 30+) -->
+    <!-- Required for resolving SMS intents and checking if SMS apps are available -->
+    <queries>
+        <!-- Declare intent to send SMS messages with SENDTO action -->
+        <intent>
+            <action android:name="android.intent.action.SENDTO" />
+            <data android:scheme="sms" />
+        </intent>
+        <!-- Also support smsto scheme for compatibility -->
+        <intent>
+            <action android:name="android.intent.action.SENDTO" />
+            <data android:scheme="smsto" />
+        </intent>
+        <!-- Support VIEW action for SMS as fallback -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="sms" />
+        </intent>
+    </queries>
 
     <application
         android:allowBackup="true"
@@ -15,18 +39,31 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Lab_Four_B"
+        android:theme="@style/Theme.SMSApplication"
         tools:targetApi="31">
+
+        <!-- Main Activity -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.Lab_Four_B">
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize">
+
+            <!-- Intent filter for launcher -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <!-- Intent filter for sharing text to the app -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
         </activity>
+
     </application>
 
 </manifest>
