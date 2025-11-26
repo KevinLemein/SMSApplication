@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,9 +32,10 @@ public class MainActivity extends AppCompatActivity {
     private static final int SMS_CHARACTER_LIMIT = 159;
 
     private Button sendBtn, composeBtn;
-    private EditText txtPhoneNo;
+    private EditText txtPhoneNumbers;  // Changed to plural
     private EditText txtMessage;
     private TextView tvCharacterCount;
+    private TextView tvRecipientCount;  // New: shows recipient count
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,12 +45,16 @@ public class MainActivity extends AppCompatActivity {
         // Initialize views
         sendBtn = findViewById(R.id.btnSendSMS);
         composeBtn = findViewById(R.id.btnComposeSMS);
-        txtPhoneNo = findViewById(R.id.editTextPhone);
+        txtPhoneNumbers = findViewById(R.id.editTextPhone);
         txtMessage = findViewById(R.id.editTextMessage);
         tvCharacterCount = findViewById(R.id.tvCharacterCount);
+        tvRecipientCount = findViewById(R.id.tvRecipientCount);
 
         // Set up character counter
         setupCharacterCounter();
+
+        // Set up recipient counter
+        setupRecipientCounter();
 
         // Set up button click listeners
         sendBtn.setOnClickListener(new View.OnClickListener() {
@@ -103,23 +109,96 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Validates phone number and message inputs
+     * Sets up real-time recipient counter
+     */
+    private void setupRecipientCounter() {
+        txtPhoneNumbers.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // Not needed
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                ArrayList<String> phoneNumbers = parsePhoneNumbers(s.toString());
+                int recipientCount = phoneNumbers.size();
+
+                if (recipientCount == 0) {
+                    tvRecipientCount.setText("0 recipients");
+                    tvRecipientCount.setTextColor(getResources().getColor(android.R.color.darker_gray));
+                } else if (recipientCount == 1) {
+                    tvRecipientCount.setText("1 recipient");
+                    tvRecipientCount.setTextColor(getResources().getColor(android.R.color.holo_blue_dark));
+                } else {
+                    tvRecipientCount.setText(recipientCount + " recipients");
+                    tvRecipientCount.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // Not needed
+            }
+        });
+    }
+
+    /**
+     * Parses phone numbers from input string
+     * Supports: comma, semicolon, newline separation
+     * @param input the raw input string
+     * @return list of parsed phone numbers
+     */
+    private ArrayList<String> parsePhoneNumbers(String input) {
+        ArrayList<String> phoneNumbers = new ArrayList<>();
+
+        if (input == null || input.trim().isEmpty()) {
+            return phoneNumbers;
+        }
+
+        // Split by comma, semicolon, or newline
+        String[] numbers = input.split("[,;\\n]+");
+
+        for (String number : numbers) {
+            String trimmed = number.trim();
+            if (!trimmed.isEmpty()) {
+                phoneNumbers.add(trimmed);
+            }
+        }
+
+        return phoneNumbers;
+    }
+
+    /**
+     * Validates phone numbers and message inputs
      * @return true if all inputs are valid
      */
     private boolean validateInputs() {
-        String phoneNo = txtPhoneNo.getText().toString().trim();
+        String phoneInput = txtPhoneNumbers.getText().toString().trim();
         String message = txtMessage.getText().toString().trim();
 
-        // Validate phone number
-        if (phoneNo.isEmpty()) {
-            txtPhoneNo.setError("Phone number is required");
-            txtPhoneNo.requestFocus();
+        // Parse phone numbers
+        ArrayList<String> phoneNumbers = parsePhoneNumbers(phoneInput);
+
+        // Validate at least one phone number
+        if (phoneNumbers.isEmpty()) {
+            txtPhoneNumbers.setError("At least one phone number is required");
+            txtPhoneNumbers.requestFocus();
             return false;
         }
 
-        if (!isValidKenyanPhoneNumber(phoneNo)) {
-            txtPhoneNo.setError("Invalid Kenyan phone number format. Use 07..., +2547..., or 2547...");
-            txtPhoneNo.requestFocus();
+        // Validate each phone number
+        ArrayList<String> invalidNumbers = new ArrayList<>();
+        for (String phoneNo : phoneNumbers) {
+            if (!isValidKenyanPhoneNumber(phoneNo)) {
+                invalidNumbers.add(phoneNo);
+            }
+        }
+
+        if (!invalidNumbers.isEmpty()) {
+            String errorMsg = "Invalid phone number(s):\n" + String.join(", ", invalidNumbers) +
+                    "\n\nUse format: 07..., +2547..., or 2547...";
+            txtPhoneNumbers.setError(errorMsg);
+            txtPhoneNumbers.requestFocus();
             return false;
         }
 
@@ -136,6 +215,13 @@ public class MainActivity extends AppCompatActivity {
                     "Warning: Your message exceeds " + SMS_CHARACTER_LIMIT +
                             " characters and will be sent as multiple SMS",
                     Toast.LENGTH_LONG).show();
+        }
+
+        // Warn about multiple recipients
+        if (phoneNumbers.size() > 1) {
+            Toast.makeText(this,
+                    "Sending to " + phoneNumbers.size() + " recipients",
+                    Toast.LENGTH_SHORT).show();
         }
 
         return true;
@@ -220,40 +306,64 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Sends SMS message directly using SmsManager
+     * Sends SMS message to multiple recipients directly using SmsManager
      */
     protected void sendSMSMessage() {
-        Log.i(TAG, "Sending SMS");
+        Log.i(TAG, "Sending SMS to multiple recipients");
 
-        String phoneNo = normalizePhoneNumber(txtPhoneNo.getText().toString().trim());
+        String phoneInput = txtPhoneNumbers.getText().toString().trim();
         String message = txtMessage.getText().toString().trim();
+
+        // Parse and normalize phone numbers
+        ArrayList<String> phoneNumbers = parsePhoneNumbers(phoneInput);
+        ArrayList<String> normalizedNumbers = new ArrayList<>();
+
+        for (String phoneNo : phoneNumbers) {
+            normalizedNumbers.add(normalizePhoneNumber(phoneNo));
+        }
 
         try {
             SmsManager smsManager = SmsManager.getDefault();
+            int successCount = 0;
+            int failCount = 0;
 
-            // If message is longer than SMS limit, divide it into multiple parts
-            if (message.length() > SMS_CHARACTER_LIMIT) {
-                // Send as multiple SMS
-                smsManager.sendMultipartTextMessage(
-                        phoneNo,
-                        null,
-                        smsManager.divideMessage(message),
-                        null,
-                        null
-                );
-                Toast.makeText(getApplicationContext(),
-                        "SMS sent successfully (Multiple parts)",
-                        Toast.LENGTH_LONG).show();
-            } else {
-                // Send single SMS
-                smsManager.sendTextMessage(phoneNo, null, message, null, null);
-                Toast.makeText(getApplicationContext(),
-                        "SMS sent successfully",
-                        Toast.LENGTH_LONG).show();
+            // Send to each recipient
+            for (String phoneNo : normalizedNumbers) {
+                try {
+                    // If message is longer than SMS limit, divide it
+                    if (message.length() > SMS_CHARACTER_LIMIT) {
+                        ArrayList<String> parts = smsManager.divideMessage(message);
+                        smsManager.sendMultipartTextMessage(
+                                phoneNo,
+                                null,
+                                parts,
+                                null,
+                                null
+                        );
+                        Log.i(TAG, "Multipart SMS sent to: " + phoneNo);
+                    } else {
+                        smsManager.sendTextMessage(phoneNo, null, message, null, null);
+                        Log.i(TAG, "SMS sent to: " + phoneNo);
+                    }
+                    successCount++;
+                } catch (Exception e) {
+                    Log.e(TAG, "Failed to send to: " + phoneNo, e);
+                    failCount++;
+                }
             }
 
-            // Clear inputs after successful send
-            clearInputs();
+            // Show result
+            if (failCount == 0) {
+                Toast.makeText(getApplicationContext(),
+                        "SMS sent successfully to " + successCount + " recipient(s)",
+                        Toast.LENGTH_LONG).show();
+                clearInputs();
+            } else {
+                Toast.makeText(getApplicationContext(),
+                        "Sent to " + successCount + " recipient(s). " +
+                                failCount + " failed.",
+                        Toast.LENGTH_LONG).show();
+            }
 
         } catch (SecurityException se) {
             Log.e(TAG, "Security Exception", se);
@@ -269,27 +379,37 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Opens default SMS app with pre-filled data
+     * Opens default SMS app with pre-filled data for multiple recipients
      * Works with Google Messages and other SMS apps
      */
     protected void composeSMS() {
-        Log.i(TAG, "Composing SMS");
+        Log.i(TAG, "Composing SMS for multiple recipients");
 
-        String phoneNo = normalizePhoneNumber(txtPhoneNo.getText().toString().trim());
+        String phoneInput = txtPhoneNumbers.getText().toString().trim();
         String message = txtMessage.getText().toString().trim();
 
+        // Parse and normalize phone numbers
+        ArrayList<String> phoneNumbers = parsePhoneNumbers(phoneInput);
+        ArrayList<String> normalizedNumbers = new ArrayList<>();
+
+        for (String phoneNo : phoneNumbers) {
+            normalizedNumbers.add(normalizePhoneNumber(phoneNo));
+        }
+
+        // Join numbers with semicolon (standard separator for multiple recipients)
+        String recipientString = String.join(";", normalizedNumbers);
+
         try {
-            // Use ACTION_SENDTO with sms: URI scheme (works best with Google Messages)
+            // Use ACTION_SENDTO with sms: URI (works with Google Messages)
             Intent smsIntent = new Intent(Intent.ACTION_SENDTO);
-            smsIntent.setData(Uri.parse("sms:" + phoneNo));
+            smsIntent.setData(Uri.parse("sms:" + recipientString));
             smsIntent.putExtra("sms_body", message);
 
             // Verify an app can handle this intent
             if (smsIntent.resolveActivity(getPackageManager()) != null) {
                 startActivity(smsIntent);
-                Log.i(TAG, "SMS composer opened successfully");
+                Log.i(TAG, "SMS composer opened successfully for " + normalizedNumbers.size() + " recipients");
             } else {
-                // No SMS app found
                 Toast.makeText(MainActivity.this,
                         "No SMS app found. Please install an SMS application.",
                         Toast.LENGTH_LONG).show();
@@ -308,8 +428,9 @@ public class MainActivity extends AppCompatActivity {
      * Clears all input fields
      */
     private void clearInputs() {
-        txtPhoneNo.setText("");
+        txtPhoneNumbers.setText("");
         txtMessage.setText("");
         tvCharacterCount.setText("0/" + SMS_CHARACTER_LIMIT);
+        tvRecipientCount.setText("0 recipients");
     }
 }
